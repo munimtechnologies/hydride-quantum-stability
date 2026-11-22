@@ -1,0 +1,22 @@
+{
+  "name": "hpimd-ctrl-mpa-v1",
+  "kind": "compete",
+  "workdir": "E:\\MV2-Pursuit\\work\\20261122T111049Z-science\\hpimd",
+  "image": "python:3.12",
+  "setup": [
+    "pip install -q --index-url https://download.pytorch.org/whl/cpu torch",
+    "pip install -q mace-torch ase numpy"
+  ],
+  "run": [
+    "cd /work && python -m py_compile hpimd_core.py hpimd_sim.py grade_hpimd.py test_hpimd_core.py > /out/compile.txt 2>&1; rc=$?; cat /out/compile.txt; exit $rc",
+    "cd /work && python -m unittest -v test_hpimd_core > /out/tests.txt 2>&1; rc=$?; cat /out/tests.txt; exit $rc",
+    "cd /work && sha256sum hpimd_core.py hpimd_sim.py grade_hpimd.py test_hpimd_core.py PREREG-v0.1.md | tee /out/sha256.txt",
+    "cd /work && python hpimd_sim.py --model mace-mpa-0 --kind ctrl --out /out --budget-s 17000 --workers 4 > /out/run.txt 2>&1; rc=$?; grep -E '^HPIMD_' /out/run.txt; tail -n 60 /out/run.txt; exit $rc"
+  ],
+  "network": true,
+  "data_urls": [],
+  "data_key": "none",
+  "cpu": 4,
+  "memory_gb": 4,
+  "timeout_minutes": 320
+}
