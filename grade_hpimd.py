@@ -1,10 +1,14 @@
 # SPDX-License-Identifier: Apache-2.0
 # Copyright 2026 Munim, Inc. (MV2). Made with AI agents working in MV2's name.
-"""Grade PREREG-v0.1 from the hpimd.json files of the control and target jobs of each model.
+"""grade_hpimd 0.1.1 -- grade PREREG-v0.1 from the hpimd.json files of each model's jobs.
 
-    python grade_hpimd.py --pair mace-mpa-0 ctrl.json tgt.json --pair mattersim-5m ctrl.json tgt.json
+    python grade_hpimd.py --pair mace-mpa-0 ctrl_md.json,pau.json,pag.json tgt.json \
+                          --pair mattersim-5m ctrl_md.json,pau.json,pag.json tgt.json
 
-A missing file is NOT GRADABLE for that model (never a pass or a fail).
+0.1.1 (AMENDMENT-HPIMD-0.2): the control runs of one model may come from several jobs, so CTRL
+and TGT are comma lists of hpimd.json files whose runs are merged by tag. A missing file only
+removes its runs (each missing run is NOT GRADABLE, never a pass or a fail). The same tag in two
+files is a FATAL error. The gate and verdict rules are hpimd_core 0.1.0, unchanged.
 """
 import argparse
 import json
@@ -15,17 +19,29 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import hpimd_core as hc  # noqa: E402
 
+VERSION = "0.1.1"
 
-def classes(path):
-    if not path or not os.path.exists(path):
+
+def classes(paths):
+    """Merged {tag: class} over a comma list of hpimd.json files; None if none exists."""
+    if not paths:
         return None
-    with open(path) as fh:
-        res = json.load(fh)
-    return {r["tag"]: r["class"] for r in res.get("runs", [])}
+    merged, seen = {}, False
+    for p in [x for x in str(paths).split(",") if x]:
+        if not os.path.exists(p):
+            continue
+        seen = True
+        with open(p) as fh:
+            res = json.load(fh)
+        for r in res.get("runs", []):
+            if r["tag"] in merged:
+                raise SystemExit("FATAL run %s appears in more than one file" % r["tag"])
+            merged[r["tag"]] = r["class"]
+    return merged if seen else None
 
 
-def grade_model(ctrl_path, tgt_path):
-    c, t = classes(ctrl_path), classes(tgt_path)
+def grade_model(ctrl_paths, tgt_paths):
+    c, t = classes(ctrl_paths), classes(tgt_paths)
     if c is None:
         gate = {"gate": "NOT GRADABLE"}
     else:
@@ -42,7 +58,7 @@ def grade_model(ctrl_path, tgt_path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--pair", nargs=3, action="append", metavar=("MODEL", "CTRL", "TGT"),
+    ap.add_argument("--pair", nargs=3, action="append", metavar=("MODEL", "CTRLS", "TGTS"),
                     required=True)
     args = ap.parse_args()
     verdicts = []
