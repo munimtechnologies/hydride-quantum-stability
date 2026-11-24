@@ -1,0 +1,23 @@
+{
+  "name": "hpimd-pag-mpa-v1",
+  "kind": "compete",
+  "workdir": "E:\\MV2-Pursuit\\work\\20261124T140950Z-science\\hpimd",
+  "image": "python:3.12",
+  "setup": [
+    "pip install -q --index-url https://download.pytorch.org/whl/cpu torch",
+    "pip install -q mace-torch ase numpy"
+  ],
+  "run": [
+    "cd /work && python pin_hpimd.py --dest /work/src > /out/pin.txt 2>&1; rc=$?; cat /out/pin.txt; exit $rc",
+    "cd /work && cp hpimd_sim.py grade_hpimd.py test_hpimd_split.py AMENDMENT-HPIMD-0.2.md src/ && cd src && python -m py_compile hpimd_core.py hpimd_sim.py grade_hpimd.py test_hpimd_core.py test_hpimd_split.py > /out/compile.txt 2>&1; rc=$?; cat /out/compile.txt; exit $rc",
+    "cd /work/src && python -m unittest -v test_hpimd_core test_hpimd_split > /out/tests.txt 2>&1; rc=$?; cat /out/tests.txt; exit $rc",
+    "cd /work/src && sha256sum hpimd_core.py hpimd_sim.py grade_hpimd.py test_hpimd_core.py test_hpimd_split.py PREREG-v0.1.md AMENDMENT-HPIMD-0.2.md | tee /out/sha256.txt",
+    "cd /work/src && python hpimd_sim.py --model mace-mpa-0 --kind ctrl --runs 3 --out /out --budget-s 17000 --workers 2 > /out/run.txt 2>&1; rc=$?; grep -E '^HPIMD_' /out/run.txt; tail -n 40 /out/run.txt; exit $rc"
+  ],
+  "network": true,
+  "data_urls": [],
+  "data_key": "hpimd-pag-mpa",
+  "cpu": 2,
+  "memory_gb": 4,
+  "timeout_minutes": 320
+}

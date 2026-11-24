@@ -1,0 +1,18 @@
+test_free_ring_energy_conserved (test_hpimd_core.TestIntegrator.test_free_ring_energy_conserved) ... ok
+test_harmonic_classical (test_hpimd_core.TestIntegrator.test_harmonic_classical) ... ok
+test_harmonic_quantum (test_hpimd_core.TestIntegrator.test_harmonic_quantum) ... ok
+test_classes (test_hpimd_core.TestMetrics.test_classes) ... ok
+test_gate_and_verdicts (test_hpimd_core.TestMetrics.test_gate_and_verdicts) ... ok
+test_ideal_frame (test_hpimd_core.TestMetrics.test_ideal_frame) ... ok
+test_one_dimer (test_hpimd_core.TestMetrics.test_one_dimer) ... ok
+test_summarize_window_and_length (test_hpimd_core.TestMetrics.test_summarize_window_and_length) ... ok
+test_diagonalises_ring (test_hpimd_core.TestNormalModes.test_diagonalises_ring) ... ok
+test_exact_limits (test_hpimd_core.TestNormalModes.test_exact_limits) ... ok
+test_orthogonal (test_hpimd_core.TestNormalModes.test_orthogonal) ... ok
+test_counts_and_distances (test_hpimd_core.TestStructures.test_counts_and_distances) ... ok
+test_parabola (test_hpimd_core.TestStructures.test_parabola) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 26.278s
+
+OK
